@@ -1,6 +1,6 @@
 // import { createSelector } from 'reselect';
 
-const getVipsData = state => state.ads.vips;
-const getStandardData = state => state.ads.standard;
+const getData = state => state.ads.data;
+const getCursor = state => state.ads.cursor;
 
-export default { getVipsData, getStandardData };
+export default { getData, getCursor };

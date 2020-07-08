@@ -2,9 +2,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { persistReducer } from 'redux-persist';
 
 const initialState = {
-  vips: [],
-  standard: [],
+  data: [],
   ads_count: 0,
+  cursor: null,
 
   isLoading: false,
   isRefreshing: false,
@@ -16,9 +16,9 @@ const reducer = (state = initialState, actions) => {
 
   switch (type) {
     case 'ADS_WRITE_DATA': return Object.assign({}, state, {
-      standard: payload.standard,
-      vips: payload.vips,
-      ads_count: payload.ads_count
+      data: payload.data,
+      ads_count: payload.ads_count,
+      cursor: payload.cursor
     });
 
     case 'ADS_LOADING': return Object.assign({}, state, {
@@ -39,7 +39,7 @@ const reducer = (state = initialState, actions) => {
 const persistConfig = {
   key: 'ads',
   storage: AsyncStorage,
-  whitelist: ['data']
+  whitelist: ['vips', 'standard', 'ads_count']
 };
 
 export default persistReducer(persistConfig, reducer);

@@ -15,7 +15,8 @@ export default StyleSheet.create({
 
   header: {
     padding: INDENT,
-    backgroundColor: '#f2f2f2'
+    backgroundColor: '#f2f2f2',
+    backgroundColor: 'gray',
   },
 
   title: {

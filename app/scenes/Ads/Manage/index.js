@@ -1,5 +1,5 @@
 import React, { PureComponent, Fragment } from 'react';
-import { View, ScrollView, Alert } from 'react-native';
+import { View, ScrollView, Alert, Text } from 'react-native';
 import { connect } from 'react-redux';
 import routes from 'app/navigation/routes';
 import AdsModule from 'app/modules/ads';
@@ -30,7 +30,7 @@ class Manage extends PureComponent {
     const currentPosition = layoutMeasurement.height + contentOffset.y;
     const heightScroll = contentSize.height;
 
-    if (heightScroll - 100 < currentPosition) {
+    if (heightScroll - 400 < currentPosition) {
 
       if (!isLoading) onFetch(({ error }) => {
         if (error) Alert.alert("Something went wrong")
@@ -51,7 +51,7 @@ class Manage extends PureComponent {
   }
 
   render() {
-    const { vips, standard, isLoading, isRefreshing } = this.props
+    const { data, isLoading, isRefreshing } = this.props
 
     return (
       <Fragment>
@@ -60,6 +60,7 @@ class Manage extends PureComponent {
           style={styles.container}
           contentContainerStyle={styles.content}
           onMomentumScrollEnd={this.handleEndScroll}
+          overScrollMode="never"
           refreshControl={(
             <Loader.Refresh
               refreshing={isRefreshing}
@@ -67,58 +68,79 @@ class Manage extends PureComponent {
             />
           )}
         >
-          {vips.length === 0 ? null : (
-            <Fragment>
-              <ContentHeader title='VIP' />
+          {data.length > 0 ? data.map((item, index) => (
+            <Fragment key={item.standard[0].id}>
+              {item.vips.length === 0 ? null : (
+                <Fragment>
+                  <ContentHeader title='VIP' />
 
-              <View style={styles.row}>
-                {vips.map(el => (
-                  <View key={el.id} style={styles.box}>
-                    <Card
-                      title={el.name}
-                      image={el.photo}
-                      price={`${el.price} ${el.currency}`}
-                      text={el.description}
-                      date={el.updated_at}
-                      onSelect={this.handleSelect.bind(null, el)}
-                    />
+                  <View style={styles.row}>
+                    {item.vips.map(el => (
+                      <View key={el.id} style={styles.box}>
+                        <Card
+                          title={el.name}
+                          image={el.photo}
+                          price={`${el.price} ${el.currency}`}
+                          text={el.description}
+                          date={el.updated_at}
+                          onSelect={this.handleSelect.bind(null, el)}
+                        />
+                      </View>
+                    ))}
                   </View>
-                ))}
-              </View>
-            </Fragment>
-          )}
+                </Fragment>
+              )}
 
-          {standard.length === 0 ? null : (
-            <Fragment>
-              <ContentHeader title='STANDARD' />
+              {item.standard.length === 0 ? null : (
+                <Fragment>
+                  <ContentHeader title='STANDARD' />
 
-              <View style={styles.row}>
-                {standard.map(el => (
-                  <View key={el.id} style={styles.box}>
-                    <Card
-                      title={el.name}
-                      image={el.photo}
-                      price={`${el.price} ${el.currency}`}
-                      text={el.description}
-                      date={el.updated_at}
-                      onSelect={this.handleSelect.bind(null, el)}
-                    />
+                  <View style={styles.row}>
+                    {item.standard.map(el => (
+                      <View key={el.id} style={styles.box}>
+                        <Card
+                          title={el.name}
+                          image={el.photo}
+                          price={`${el.price} ${el.currency}`}
+                          text={el.description}
+                          date={el.updated_at}
+                          onSelect={this.handleSelect.bind(null, el)}
+                        />
+                      </View>
+                    ))}
                   </View>
-                ))}
-              </View>
+                </Fragment>
+              )}
+
+
             </Fragment>
-          )}
+          )) : null}
 
         </ScrollView>
-        {<Loader.Indicator isLoading={isLoading} />}
+        <Text style={{
+          textAlign: 'center',
+          fontSize: 40,
+          fontWeight: 'bold',
+          position: 'absolute',
+          color: 'red',
+          top: '40%',
+          zIndex: 20,
+          width: '100%'
+        }}
+        pointerEvents="none"
+        >
+          {data.length * 26}
+        </Text>
+        {<Loader.Indicator isLoading={isLoading} color='blue' size='large' />}
       </Fragment>
     )
   }
 }
 
 export default connect(state => ({
-  vips: state.ads.vips,
-  standard: state.ads.standard,
+  // vips: state.ads.vips,
+  // standard: state.ads.standard,
+  data: state.ads.data,
   isLoading: state.ads.isLoading,
   isRefreshing: state.ads.isRefreshing,
 }), dispatch => ({

@@ -1,4 +1,4 @@
-import { all, fork, call, put, select, takeLatest, throttle } from 'redux-saga/effects';
+import { all, fork, call, put, select, takeLatest } from 'redux-saga/effects';
 import ServiceApi from 'app/services/api';
 import Selectors from './selectors';
 
@@ -13,33 +13,25 @@ export default function* watchSagas() {
 function* getFetchParams(action) {
   const { type } = action;
 
-  const vipsData = yield select(Selectors.getVipsData);
-  const standardData = yield select(Selectors.getStandardData);
+  const data = yield select(Selectors.getData);
+  const cursor = yield select(Selectors.getCursor)
 
   const values = {
-    data: {
-      vips: vipsData,
-      standard: standardData
-    }
+    data,
+    query: null,
   };
-
-  let query = null;
 
   switch (type) {
     case 'ADS_FETCH_REQUEST': {
-      if (vipsData.length > 0) {
-        query = { cursor: vipsData[vipsData.length - 1].cursor }
+
+      if (data.length > 0 && cursor) {
+        values.query = { cursor }
       }
     } break;
 
     case 'ADS_INITIAL_REQUEST':
     case 'ADS_REFRESH_REQUEST': {
-      Object.assign(values, {
-        data: {
-          vips: [],
-          standard: []
-        }
-      });
+      values.data = [];
     } break;
 
     default: null;
@@ -47,7 +39,7 @@ function* getFetchParams(action) {
 
   return ({
     data: values.data,
-    query: query,
+    query: values.query,
   });
 }
 
@@ -72,9 +64,9 @@ function* fetch() {
       yield put({
         type: 'ADS_WRITE_DATA',
         payload: {
-          standard: [...params.data.standard, ...data.ads],
-          vips: data.vips,
-          ads_count: data.ads_count
+          data: params.data.concat({ vips: data.vips, standard: data.ads }),
+          ads_count: data.ads_count,
+          cursor: data.ads?.[data.ads.length - 1]?.cursor || null
         }
       });
 
@@ -83,7 +75,6 @@ function* fetch() {
       if (callback) yield call(callback, { error: false, message });
     } catch ({ message }) {
       yield put({ type: 'ADS_FETCH_FAILURE' });
-
       if (callback) yield call(callback, { error: true, message });
     }
   });
