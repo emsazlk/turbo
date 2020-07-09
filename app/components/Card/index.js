@@ -5,12 +5,12 @@ import moment from 'moment';
 import FastImage from 'react-native-fast-image';
 import styles from './styles';
 
-const Card = memo(({ image, price, title, text, date, onSelect }) => {
+const Card = memo(({ image, price, title, text, date, onSelect, style }) => {
 
   return (
     <TouchableOpacity
       onPress={onSelect}
-      style={styles.container}
+      style={[styles.container, style]}
       activeOpacity={0.6}
     >
       <View style={styles.imageBox}>
